@@ -19,7 +19,7 @@
                 <Button id="addTaskButton" fx:id="addItemButton" focusTraversable="false" layoutX="660.0" layoutY="10.0" mnemonicParsing="false" onAction="#addNewItem" onMouseClicked="#addItemClicked" prefHeight="25.0" prefWidth="138.0" text="Add Inventory Item" />
                 <Label fx:id="errorLabel" layoutX="14.0" layoutY="45.0" prefHeight="17.0" prefWidth="311.0" />
                 <Button fx:id="deleteButton" focusTraversable="false" layoutX="662.0" layoutY="98.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="25.0" prefWidth="138.0" text="Delete" />
-                <Button fx:id="updateButton" layoutX="662.0" layoutY="54.0" mnemonicParsing="false" onAction="#editItemClicked" prefHeight="25.0" prefWidth="138.0" text="Update Item" />
+                <Button fx:id="updateButton" layoutX="662.0" layoutY="54.0" mnemonicParsing="false" onAction="#updateItemClicked" prefHeight="25.0" prefWidth="138.0" text="Update Item" />
             <MenuButton fx:id="sortButton" layoutX="515.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Sort">
               <items>
                 <MenuItem mnemonicParsing="false" text="By Serial Number" />
@@ -48,7 +48,7 @@
             </MenuButton>
             </children>
         </AnchorPane>
-      <TableView fx:id="tableview" prefHeight="200.0" prefWidth="200.0">
+      <TableView fx:id="tableview" onSort="#itemsTableClicked" prefHeight="200.0" prefWidth="200.0">
         <columns>
           <TableColumn fx:id="item_value" prefWidth="185.7777777844003" text="Value" />
           <TableColumn fx:id="item_serial" prefWidth="302.22216796875" text="Serial Number" />

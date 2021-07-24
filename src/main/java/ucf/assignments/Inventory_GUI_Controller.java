@@ -115,7 +115,7 @@ public class Inventory_GUI_Controller
         serialText.setText("");
         errorLabel.setText("");
 
-        //toggleButtons(items.isEmpty());
+        toggleButtons(items.isEmpty());
 
     }
 
@@ -153,8 +153,96 @@ public class Inventory_GUI_Controller
     {
         items.remove(tableview.getSelectionModel().getSelectedItem());
         tableview.refresh();
-        //toggleButtons(items.isEmpty());
+        toggleButtons(items.isEmpty());
         tableview.getSelectionModel().clearSelection();
+    }
+
+    @FXML
+    void addItemClicked(MouseEvent event)
+    {
+        tableview.getSelectionModel().clearSelection();
+
+        Scene scene = (Scene) mainPane.getScene();
+
+        scene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                enterPressed();
+            }
+        });
+    }
+
+    private void enterPressed()
+    {
+        if(nameText.isFocused())
+        {
+            addNewItem(null);
+        }
+    }
+
+    @FXML
+    void itemsTableClicked(MouseEvent event)
+    {
+        if(!items.isEmpty())
+        {
+            addItemButton.setDisable(true);
+        }
+
+
+        deleteButton.setDisable(items.isEmpty());
+        addItemButton.setDisable(false);
+        updateButton.setDisable(true);
+        tableview.getSelectionModel().clearSelection();
+
+        if(tableview.getSelectionModel().getSelectedIndex() >= 0)
+        {
+            updateButton.setDisable(false);
+            addItemButton.setDisable(true);
+            index = tableview.getSelectionModel().getSelectedIndex();
+
+            String name = items.get(index).getName();
+            nameText.setText(name);
+
+            String serial = items.get(index).getSerial_number();
+            serialText.setText(serial);
+
+            double money = items.get(index).getValue();
+            String money_str = String.valueOf(money);
+            moneyText.setText(money_str);
+
+        }
+
+    }
+
+    @FXML
+    public void updateItemClicked(ActionEvent actionEvent) throws IOException  //when update button is clicked
+    {
+
+        items.remove(index);
+        double value = Double.parseDouble(moneyText.getText());
+        items.add(new Inventory(value, serialText.getText(), nameText.getText()));
+
+        tableview.setItems(items);
+        tableview.setItems(items);
+        nameText.setText("");
+        moneyText.setText("");
+        serialText.setText("");
+        errorLabel.setText("");
+
+        toggleButtons(items.isEmpty());
+
+        /*
+        new FileOutputStream(fname).close();
+        saveItemData(fname);
+
+         */
+
+
+    }
+
+    private void toggleButtons(boolean listsEmpty)
+    {
+        deleteButton.setDisable(listsEmpty);
+        addItemButton.setDisable(listsEmpty);
     }
 
     private void printError(String text)
@@ -162,6 +250,8 @@ public class Inventory_GUI_Controller
         errorLabel.setText(text);
         errorLabel.setTextFill(Color.RED);
     }
+
+
 
 
 }
