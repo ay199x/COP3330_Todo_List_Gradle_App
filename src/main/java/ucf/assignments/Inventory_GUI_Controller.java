@@ -44,6 +44,8 @@ public class Inventory_GUI_Controller
     @FXML
     private Button updateButton;
     @FXML
+    private Button cancelUpdateButton;
+    @FXML
     private Button deleteButton;
     @FXML
     private Label errorLabel;
@@ -63,6 +65,7 @@ public class Inventory_GUI_Controller
     private MenuButton saveButton;
 
     public ObservableList<Inventory> items = FXCollections.observableArrayList();
+
     public FileChooser fc = new FileChooser(); //for saving and opening files
     public String fname = "";
     public int index;
@@ -112,6 +115,29 @@ public class Inventory_GUI_Controller
         sortedData.comparatorProperty().bind(tableview.comparatorProperty());
 
         tableview.setItems(sortedData);
+
+        tableview.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getClickCount() > 1) {
+                if(tableview.getSelectionModel().getSelectedItem() != null)
+                {
+                    updateButton.setDisable(false);
+                    addItemButton.setDisable(true);
+                    index = tableview.getSelectionModel().getSelectedIndex();
+
+                    String name = items.get(index).getName();
+                    nameText.setText(name);
+
+                    String serial = items.get(index).getSerial_number();
+                    serialText.setText(serial);
+
+                    double money = items.get(index).getValue();
+                    String money_str = String.valueOf(money);
+                    moneyText.setText(money_str);
+                }
+            }
+
+
+        });
 
 
         /*
@@ -269,84 +295,51 @@ public class Inventory_GUI_Controller
     {
         items.remove(tableview.getSelectionModel().getSelectedItem());
         tableview.refresh();
-        toggleButtons(items.isEmpty());
-        tableview.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    void addItemClicked(MouseEvent event)
-    {
         tableview.getSelectionModel().clearSelection();
 
-        Scene scene = (Scene) mainPane.getScene();
+        nameText.setText("");
+        moneyText.setText("");
+        serialText.setText("");
+        errorLabel.setText("");
 
-        scene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ENTER) {
-                enterPressed();
-            }
-        });
-    }
-
-    private void enterPressed()
-    {
-        if(nameText.isFocused())
-        {
-            addNewItem(null);
-        }
-    }
-
-    @FXML
-    void itemsTableClicked(MouseEvent event)
-    {
-        if(!items.isEmpty())
-        {
-            addItemButton.setDisable(true);
-        }
-
-
-        deleteButton.setDisable(items.isEmpty());
         addItemButton.setDisable(false);
-        updateButton.setDisable(true);
-        tableview.getSelectionModel().clearSelection();
-
-        if(tableview.getSelectionModel().getSelectedIndex() >= 0)
-        {
-            updateButton.setDisable(false);
-            addItemButton.setDisable(true);
-            index = tableview.getSelectionModel().getSelectedIndex();
-
-            String name = items.get(index).getName();
-            nameText.setText(name);
-
-            String serial = items.get(index).getSerial_number();
-            serialText.setText(serial);
-
-            double money = items.get(index).getValue();
-            String money_str = String.valueOf(money);
-            moneyText.setText(money_str);
-
-        }
-
+        updateButton.setDisable(false);
+        cancelUpdateButton.setDisable(false);
+        deleteButton.setDisable(false);
     }
 
+
     @FXML
-    public void updateItemClicked(ActionEvent actionEvent) throws IOException  //when update button is clicked
+    public void updateItemClicked(ActionEvent actionEvent) throws IOException, InterruptedException  //when update button is clicked
     {
 
-        if(addItemValidate()) {
+        if(tableview.getSelectionModel().getSelectedItem() != null) {
+
             items.remove(index);
+
             double value = Double.parseDouble(moneyText.getText());
-            items.add(new Inventory(value, serialText.getText(), nameText.getText()));
+            items.add(index, new Inventory(value, serialText.getText(), nameText.getText()));
 
             tableview.setItems(items);
-            tableview.setItems(items);
+            tableview.getSelectionModel().clearSelection();
             nameText.setText("");
             moneyText.setText("");
             serialText.setText("");
             errorLabel.setText("");
 
+
             toggleButtons(items.isEmpty());
         }
+
+        else
+        {
+            printError("Please Select An Inventory Item To Update");
+            //Thread.sleep(2000);
+            //errorLabel.setText("");
+
+        }
+
+
 
         /*
         new FileOutputStream(fname).close();
@@ -357,6 +350,30 @@ public class Inventory_GUI_Controller
     }
 
     @FXML
+    public void cancelUpdateClicked(ActionEvent actionEvent) throws IOException, InterruptedException  //when update button is clicked
+    {
+        if(tableview.getSelectionModel().getSelectedItem() != null) {
+            tableview.getSelectionModel().clearSelection();
+            nameText.setText("");
+            moneyText.setText("");
+            serialText.setText("");
+            errorLabel.setText("");
+
+
+            toggleButtons(items.isEmpty());
+        }
+
+        else
+        {
+            printError("Please Don't Click On Cancel Without Selecting An Item");
+            //Thread.sleep(2000);
+            //errorLabel.setText("");
+        }
+
+    }
+
+
+        @FXML
     public void sortName(ActionEvent actionEvent)
     {
         Collections.sort(items, new Comparator<Inventory>()
@@ -380,14 +397,6 @@ public class Inventory_GUI_Controller
         tableview.setItems(items);
     }
 
-    int getSortOrder(String s)
-    {   Pattern p = Pattern.compile("^([0-9]+)([a-z]?)$");
-        Matcher m = p.matcher(s);
-        if(!m.matches()) return 0;
-        int major = Integer.parseInt(m.group(1));
-        int minor = m.group(2).isEmpty() ? 0 : m.group(2).charAt(0);
-        return (major << 8) | minor;
-    }
 
     @FXML
     public void sortSerialNumber(ActionEvent actionEvent)

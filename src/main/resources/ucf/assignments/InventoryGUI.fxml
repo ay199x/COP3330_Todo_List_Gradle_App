@@ -13,13 +13,13 @@
 
 <SplitPane fx:id="mainPane" dividerPositions="0.5" orientation="VERTICAL" prefHeight="434.0" prefWidth="817.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ucf.assignments.Inventory_GUI_Controller">
     <items>
-        <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="134.0" prefWidth="815.0">
+        <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="815.0">
             <children>
-                <TextField fx:id="nameText" focusTraversable="false" layoutX="14.0" layoutY="10.0" onMouseClicked="#addItemClicked" prefHeight="25.0" prefWidth="483.0" promptText="Write the name of your inventory item here ..." />
-                <Button id="addTaskButton" fx:id="addItemButton" focusTraversable="false" layoutX="660.0" layoutY="10.0" mnemonicParsing="false" onAction="#addNewItem" onMouseClicked="#addItemClicked" prefHeight="25.0" prefWidth="138.0" text="Add Inventory Item" />
+                <TextField fx:id="nameText" focusTraversable="false" layoutX="14.0" layoutY="10.0" prefHeight="25.0" prefWidth="483.0" promptText="Write the name of your inventory item here ..." />
+                <Button id="addTaskButton" fx:id="addItemButton" focusTraversable="false" layoutX="660.0" layoutY="10.0" mnemonicParsing="false" onAction="#addNewItem" prefHeight="25.0" prefWidth="138.0" text="Add Inventory Item" />
                 <Label fx:id="errorLabel" layoutX="14.0" layoutY="35.0" prefHeight="17.0" prefWidth="372.0" />
-                <Button fx:id="deleteButton" focusTraversable="false" layoutX="662.0" layoutY="98.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="25.0" prefWidth="138.0" text="Delete" />
-                <Button fx:id="updateButton" layoutX="662.0" layoutY="54.0" mnemonicParsing="false" onAction="#updateItemClicked" prefHeight="25.0" prefWidth="138.0" text="Update Item" />
+                <Button fx:id="deleteButton" focusTraversable="false" layoutX="662.0" layoutY="110.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="25.0" prefWidth="138.0" text="Delete" />
+                <Button fx:id="updateButton" layoutX="662.0" layoutY="41.0" mnemonicParsing="false" onAction="#updateItemClicked" prefHeight="25.0" prefWidth="138.0" text="Update Item" />
             <MenuButton fx:id="sortButton" layoutX="515.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="125.0" text="Sort">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#sortSerialNumber" text="By Serial Number" />
@@ -34,7 +34,7 @@
                   <Font name="System Bold" size="16.0" />
                </font>
             </Label>
-            <TextField fx:id="searchField" layoutX="126.0" layoutY="98.0" prefHeight="25.0" prefWidth="372.0" />
+            <TextField fx:id="searchField" layoutX="126.0" layoutY="98.0" prefHeight="25.0" prefWidth="517.0" />
             <MenuButton fx:id="saveButton" layoutX="380.0" layoutY="54.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="90.0" text="Save As" textAlignment="CENTER">
               <items>
                 <MenuItem mnemonicParsing="false" text="TSV File" />
@@ -47,9 +47,10 @@
                 <MenuItem mnemonicParsing="false" text="HTML File" />
               </items>
             </MenuButton>
+            <Button fx:id="cancelUpdateButton" layoutX="661.0" layoutY="75.0" mnemonicParsing="false" onAction="#cancelUpdateClicked" prefHeight="25.0" prefWidth="138.0" text="Cancel Update" />
             </children>
         </AnchorPane>
-      <TableView fx:id="tableview" onSort="#itemsTableClicked" prefHeight="200.0" prefWidth="200.0">
+      <TableView fx:id="tableview" prefHeight="316.0" prefWidth="832.0">
         <columns>
           <TableColumn fx:id="item_value" prefWidth="185.7777777844003" text="Value" />
           <TableColumn fx:id="item_serial" prefWidth="302.22216796875" text="Serial Number" />
