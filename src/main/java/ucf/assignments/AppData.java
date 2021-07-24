@@ -1,8 +1,9 @@
 package ucf.assignments;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class AppData
+public class AppData implements Serializable
 {
     private ArrayList<Inventory> list;
 

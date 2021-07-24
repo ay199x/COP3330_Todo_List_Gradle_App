@@ -1,24 +1,28 @@
 package ucf.assignments;
 
-public class Inventory {
+import java.io.Serializable;
+
+public class Inventory implements Serializable
+{
     private double value;
     private String serial_number;
     private String name;
+    private String dollars;
 
     /*
     @Override
     public String toString() {
-        return "Inventory{" +
-                "value=" + value +
-                ", serial_number='" + serial_number + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return "$";
     }
-*/
+    */
+
+
     public Inventory(double value, String serial_number, String name) {
         this.value = value;
         this.serial_number = serial_number;
         this.name = name;
+
+        this.dollars = "$" + String.valueOf(value);
     }
 
     public void setValue(double value) {
@@ -44,4 +48,10 @@ public class Inventory {
     public String getName() {
         return name;
     }
+
+    public String getDollars(){
+        return dollars;
+    }
+
+
 }

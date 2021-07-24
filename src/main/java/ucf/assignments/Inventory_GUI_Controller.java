@@ -10,6 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -66,12 +68,19 @@ public class Inventory_GUI_Controller
     public int index;
     public boolean isopened = false;
 
+
     @FXML
     public void initialize()
     {
         String path = System.getProperty("user.dir");
         fc.setInitialDirectory(new File(path));
         toggleButtons(false);
+
+        item_value.setCellValueFactory(new PropertyValueFactory<>("dollars"));
+
+        item_serial.setCellValueFactory(new PropertyValueFactory<>("serial_number"));
+
+        item_name.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         FilteredList<Inventory> filteredData = new FilteredList<>(items, b -> true);
 
@@ -154,9 +163,29 @@ public class Inventory_GUI_Controller
             printError("Cannot create an inventory item with no serial number");
             return false;
         }
-       else if(isDouble(moneyText.getText()) == false && isSerial(serialText.getText()) == false && (nameText.getText().length() < 2 || nameText.getText().length() > 256))
+
+
+        else if(isDouble(moneyText.getText()) == false)
         {
-            printError("Please enter the inventory item data in the correct format");
+            printError("Please enter the monetary value in the correct format");
+            return false;
+        }
+
+        else if(isSerial(serialText.getText()) == false)
+        {
+            printError("Please enter the serial number in the correct format");
+            return false;
+        }
+
+        else if(nameText.getText().length() < 2)
+        {
+            printError("Inventory item name less than 2 characters");
+            return false;
+        }
+
+        else if(nameText.getText().length() > 256)
+        {
+            printError("Inventory item name cannot exceed 256 characters");
             return false;
         }
 
@@ -194,13 +223,34 @@ public class Inventory_GUI_Controller
         }
     }
 
+    private static boolean isStringUpperCase(String str)
+    {
+        char currentCharacter;
+        String specialChars = "~`!@#$%^&*()-_=+\\|[{]};:'\",<.>/?";
+
+        for (int i = 0; i < str.length(); i++)
+        {
+            currentCharacter = str.charAt(i);
+            if (!Character.isDigit(currentCharacter) && !specialChars.contains(String.valueOf(currentCharacter)))
+            {
+                if(!Character.isUpperCase(currentCharacter))
+                {
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+    }
+
     private boolean isSerial(String str)
     {
 
-        if (str.equals(str.toUpperCase()) && str.length() == 10 && str.matches("^[a-zA-Z0-9]*$"))
+        if ( isStringUpperCase(str) && (str.length() == 10) && str.matches("^[a-zA-Z0-9]*$")) {
             return true;
+        }
 
-        else
             return false;
     }
 
@@ -315,11 +365,11 @@ public class Inventory_GUI_Controller
             public int compare(Inventory t1, Inventory t2)
             {
 
-                if( t1.getName().compareTo(t2.getName()) == 1 || t1.getName().compareTo(t2.getName()) == 0 )
+                if( t1.getName().compareTo(t2.getName()) > 0 || t1.getName().compareTo(t2.getName()) == 0 )
                 {
                     return 1;
                 }
-                if( t1.getName().compareTo(t2.getName()) == -1)
+                if( t1.getName().compareTo(t2.getName()) < 0)
                 {
                     return -1;
                 }
@@ -348,7 +398,15 @@ public class Inventory_GUI_Controller
             public int compare(Inventory t1, Inventory t2)
             {
 
-                return getSortOrder(t1.getSerial_number()) - getSortOrder(t2.getSerial_number());
+                if( t1.getSerial_number().compareTo(t2.getSerial_number()) > 0 || t1.getSerial_number().compareTo(t2.getSerial_number()) == 0 )
+                {
+                    return 1;
+                }
+                if( t1.getSerial_number().compareTo(t2.getSerial_number()) < 0)
+                {
+                    return -1;
+                }
+                return 0;
             }
         });
 
