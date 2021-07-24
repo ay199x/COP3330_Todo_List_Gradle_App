@@ -4,6 +4,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -19,6 +21,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Inventory_GUI_Controller
@@ -32,7 +36,7 @@ public class Inventory_GUI_Controller
     @FXML
     private TextField serialText;
     @FXML
-    private TextField searchText;
+    private TextField searchField;
     @FXML
     private Button addItemButton;
     @FXML
@@ -61,6 +65,67 @@ public class Inventory_GUI_Controller
     public String fname = "";
     public int index;
     public boolean isopened = false;
+
+    @FXML
+    public void initialize()
+    {
+        String path = System.getProperty("user.dir");
+        fc.setInitialDirectory(new File(path));
+        toggleButtons(false);
+
+        FilteredList<Inventory> filteredData = new FilteredList<>(items, b -> true);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(inventory -> {
+
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (inventory.getName().toLowerCase().indexOf(lowerCaseFilter) != -1 )
+                {
+                    return true; // Filter matches name.
+                }
+                else if (inventory.getSerial_number().toLowerCase().indexOf(lowerCaseFilter) != -1)
+                {
+                    return true; // Filter matches serial number.
+                }
+                else
+                    return false; // Does not match.
+            });
+        });
+
+
+        SortedList<Inventory> sortedData = new SortedList<>(filteredData);
+
+        sortedData.comparatorProperty().bind(tableview.comparatorProperty());
+
+        tableview.setItems(sortedData);
+
+
+        /*
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            {
+                if(isopened == true) {
+                    try {
+                        saveItemData(fname);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+     */
+
+        tableview.getSelectionModel().clearSelection();
+
+
+    }
 
     @FXML
     void addNewItem(ActionEvent event)
@@ -131,7 +196,8 @@ public class Inventory_GUI_Controller
 
     private boolean isSerial(String str)
     {
-        if (str.equals(str.toUpperCase()) && str.length() == 10)
+
+        if (str.equals(str.toUpperCase()) && str.length() == 10 && str.matches("^[a-zA-Z0-9]*$"))
             return true;
 
         else
@@ -217,18 +283,20 @@ public class Inventory_GUI_Controller
     public void updateItemClicked(ActionEvent actionEvent) throws IOException  //when update button is clicked
     {
 
-        items.remove(index);
-        double value = Double.parseDouble(moneyText.getText());
-        items.add(new Inventory(value, serialText.getText(), nameText.getText()));
+        if(addItemValidate()) {
+            items.remove(index);
+            double value = Double.parseDouble(moneyText.getText());
+            items.add(new Inventory(value, serialText.getText(), nameText.getText()));
 
-        tableview.setItems(items);
-        tableview.setItems(items);
-        nameText.setText("");
-        moneyText.setText("");
-        serialText.setText("");
-        errorLabel.setText("");
+            tableview.setItems(items);
+            tableview.setItems(items);
+            nameText.setText("");
+            moneyText.setText("");
+            serialText.setText("");
+            errorLabel.setText("");
 
-        toggleButtons(items.isEmpty());
+            toggleButtons(items.isEmpty());
+        }
 
         /*
         new FileOutputStream(fname).close();
@@ -236,7 +304,79 @@ public class Inventory_GUI_Controller
 
          */
 
+    }
 
+    @FXML
+    public void sortName(ActionEvent actionEvent)
+    {
+        Collections.sort(items, new Comparator<Inventory>()
+        {
+            @Override
+            public int compare(Inventory t1, Inventory t2)
+            {
+
+                if( t1.getName().compareTo(t2.getName()) == 1 || t1.getName().compareTo(t2.getName()) == 0 )
+                {
+                    return 1;
+                }
+                if( t1.getName().compareTo(t2.getName()) == -1)
+                {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+
+        tableview.setItems(items);
+    }
+
+    int getSortOrder(String s)
+    {   Pattern p = Pattern.compile("^([0-9]+)([a-z]?)$");
+        Matcher m = p.matcher(s);
+        if(!m.matches()) return 0;
+        int major = Integer.parseInt(m.group(1));
+        int minor = m.group(2).isEmpty() ? 0 : m.group(2).charAt(0);
+        return (major << 8) | minor;
+    }
+
+    @FXML
+    public void sortSerialNumber(ActionEvent actionEvent)
+    {
+        Collections.sort(items, new Comparator<Inventory>()
+        {
+            @Override
+            public int compare(Inventory t1, Inventory t2)
+            {
+
+                return getSortOrder(t1.getSerial_number()) - getSortOrder(t2.getSerial_number());
+            }
+        });
+
+        tableview.setItems(items);
+    }
+
+    @FXML
+    public void sortValue(ActionEvent actionEvent)
+    {
+        Collections.sort(items, new Comparator<Inventory>()
+        {
+            @Override
+            public int compare(Inventory t1, Inventory t2)
+            {
+
+                if( t1.getValue() > t2.getValue() || t1.getValue() == t2.getValue() )
+                {
+                    return 1;
+                }
+                if( t1.getValue() < t2.getValue())
+                {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+
+        tableview.setItems(items);
     }
 
     private void toggleButtons(boolean listsEmpty)
