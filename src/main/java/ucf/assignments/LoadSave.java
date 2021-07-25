@@ -125,6 +125,7 @@ public class LoadSave
                     NodeList cols = row.getChildNodes();
 
                     int cCount = 0;
+
                     Inventory item = new Inventory();
 
                     for (int j = 0; j < cols.getLength(); j++)
@@ -142,13 +143,13 @@ public class LoadSave
 
                                 case 1:
                                 {
-                                    item.setName(col.getTextContent());
+                                    item.setSerial_number(col.getTextContent());
                                 }
                                 break;
 
                                 case 2:
                                 {
-                                    item.setSerial_number(col.getTextContent());
+                                    item.setName(col.getTextContent());
                                 }
                             }
                             cCount++;

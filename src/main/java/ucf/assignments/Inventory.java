@@ -9,13 +9,6 @@ public class Inventory implements Serializable
     private String name;
     private String dollars;
 
-    /*
-    @Override
-    public String toString() {
-        return "$";
-    }
-    */
-
 
     public Inventory(double value, String serial_number, String name) {
         this.value = value;
@@ -31,6 +24,7 @@ public class Inventory implements Serializable
     }
     public void setValue(double value) {
         this.value = value;
+        this.dollars = "$" + String.valueOf(value);
     }
 
     public void setSerial_number(String serial_number) {
