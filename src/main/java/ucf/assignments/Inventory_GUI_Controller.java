@@ -197,49 +197,51 @@ public class Inventory_GUI_Controller
 
         FileChooser.ExtensionFilter filter = getExtensionFilter(type);
         chooser.getExtensionFilters().add(filter);
-        File filename = chooser.showSaveDialog(InventoryTracker.getMainWindow());
+        File selectedFile = chooser.showSaveDialog(InventoryTracker.getMainWindow());
 
         ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
         AppData data = new AppData(list);
 
-        if (filename == null)
-            return;
-
-        try
+        if (selectedFile != null)
         {
-            LoadSave.Save_As(filename, type, data.getList());
-        }
-        catch (Exception e)
-        {
-            showAlert("Save Error", e.getMessage(), Alert.AlertType.ERROR);
+            try
+            {
+                LoadSave.Save_As(selectedFile, type, data.getList());
+            }
+            catch (Exception e)
+            {
+                showAlert("Save Error", e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
 
     @FXML
     public void openClicked(ActionEvent actionEvent)
     {
-        FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().addAll(getExtensionFilter(TSV), getExtensionFilter(HTML), getExtensionFilter(JSON));
-        File filename = chooser.showOpenDialog(InventoryTracker.getMainWindow());
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().addAll(getExtensionFilter(TSV), getExtensionFilter(HTML), getExtensionFilter(JSON));
+        File selectedFile = fc.showOpenDialog(new Stage());
 
-        if (filename == null)
-            return;
-
-        try
+        if(selectedFile != null)
         {
-            ArrayList<Inventory> list = LoadSave.Open(filename);
+            isopened = true;
+            try
+            {
+                ArrayList<Inventory> list = LoadSave.Open(selectedFile);
 
-            AppData data = new AppData(list);
-            items.setAll(data.getList());
-            tableview.setItems(items);
+                AppData data = new AppData(list);
+                items.setAll(data.getList());
+                tableview.setItems(items);
 
+            }
+
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                showAlert("File Open Error", e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
 
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            showAlert("File Open Error", e.getMessage(), Alert.AlertType.ERROR);
-        }
 
     }
 

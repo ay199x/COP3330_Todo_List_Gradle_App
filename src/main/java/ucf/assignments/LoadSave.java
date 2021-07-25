@@ -41,9 +41,9 @@ public class LoadSave
         }
     }
 
-    public static ArrayList<Inventory> Open (File filename) throws Exception
+    public static ArrayList<Inventory> Open (File selectedFile) throws Exception
     {
-        String name = filename.getName();
+        String name = selectedFile.getName();
         Type type;
 
         if (name.endsWith("txt"))
@@ -66,13 +66,13 @@ public class LoadSave
             type = null;
         }
 
-        try (FileReader reader = new FileReader(filename))
+        try (FileReader reader = new FileReader(selectedFile))
         {
             switch (type)
             {
-                case TSV: openFromTSV(reader);
-                case HTML: openFromHTML(reader);
-                case JSON: openFromJSON(reader);
+                case TSV: return openFromTSV(reader);
+                case HTML: return openFromHTML(reader);
+                case JSON: return openFromJSON(reader);
             }
         }
         return null;
@@ -161,9 +161,9 @@ public class LoadSave
 
 
 
-    public static void Save_As(File filename, Type type, ArrayList<Inventory> list) throws Exception
+    public static void Save_As(File selectedFile, Type type, ArrayList<Inventory> list) throws Exception
     {
-        try (FileWriter writer = new FileWriter(filename))
+        try (FileWriter writer = new FileWriter(selectedFile))
         {
             switch (type)
             {
