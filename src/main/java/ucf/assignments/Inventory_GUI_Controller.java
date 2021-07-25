@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -74,11 +76,10 @@ public class Inventory_GUI_Controller
 
     public ObservableList<Inventory> items = FXCollections.observableArrayList();
 
-    //public FileChooser fc = new FileChooser(); //for saving and opening files
-    public String fname = "";
     public int index;
     public boolean isopened = false;
 
+    FilteredList<Inventory> filteredData = new FilteredList<>(items, e -> true);
 
     @FXML
     public void initialize()
@@ -93,36 +94,9 @@ public class Inventory_GUI_Controller
 
         item_name.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        FilteredList<Inventory> filteredData = new FilteredList<>(items, b -> true);
-
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(inventory -> {
-
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-
-                String lowerCaseFilter = newValue.toLowerCase();
-
-                if (inventory.getName().toLowerCase().indexOf(lowerCaseFilter) != -1 )
-                {
-                    return true; // Filter matches name.
-                }
-                else if (inventory.getSerial_number().toLowerCase().indexOf(lowerCaseFilter) != -1)
-                {
-                    return true; // Filter matches serial number.
-                }
-                else
-                    return false; // Does not match.
-            });
-        });
+        //FilteredList<Inventory> filteredData = new FilteredList<>(items, b -> true);
 
 
-        SortedList<Inventory> sortedData = new SortedList<>(filteredData);
-
-        sortedData.comparatorProperty().bind(tableview.comparatorProperty());
-
-        tableview.setItems(sortedData);
 
         tableview.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() > 1) {
@@ -374,6 +348,39 @@ public class Inventory_GUI_Controller
     }
 
     @FXML
+    public void search(KeyEvent keyEvent)
+    {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+
+            filteredData.setPredicate((Predicate<? super Inventory>) (Inventory inventory) -> {
+
+                if (newValue == null || newValue.isEmpty())
+                {
+                    return true;
+                }
+
+                else if (inventory.getName().toLowerCase().contains(newValue))
+                {
+                    return true; // Filter matches name.
+                }
+                else if (inventory.getSerial_number().toLowerCase().contains(newValue))
+                {
+                    return true; // Filter matches serial number.
+                }
+                else
+                    return false; // Does not match.
+            });
+        });
+
+
+        SortedList<Inventory> sortedData = new SortedList<>(filteredData);
+
+        sortedData.comparatorProperty().bind(tableview.comparatorProperty());
+
+        tableview.setItems(sortedData);
+    }
+
+    @FXML
     void deleteItem(ActionEvent event)
     {
         items.remove(tableview.getSelectionModel().getSelectedItem());
@@ -565,6 +572,7 @@ public class Inventory_GUI_Controller
         }
 
     }
+
 
 }
 

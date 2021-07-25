@@ -8,7 +8,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class InventoryTracker extends Application {
+public class InventoryTracker extends Application
+{
 
     private static Stage mainWindow;
 
