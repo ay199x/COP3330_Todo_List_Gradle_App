@@ -180,7 +180,7 @@ public class LoadSave
         }
     }
 
-    private static void Save_As_TSV(Writer writer, ArrayList<Inventory> list)
+    public static void Save_As_TSV(Writer writer, ArrayList<Inventory> list)
     {
         PrintWriter pw = new PrintWriter(writer);
         pw.println("Serial Number\tName\tValue");
@@ -193,13 +193,13 @@ public class LoadSave
 
     }
 
-    private static void Save_As_JSON(Writer writer, ArrayList<Inventory> list)
+    public static void Save_As_JSON(Writer writer, ArrayList<Inventory> list)
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         gson.toJson(list,writer);
     }
 
-    private static void Save_As_HTML(Writer writer, ArrayList<Inventory> list) throws Exception
+    public static void Save_As_HTML(Writer writer, ArrayList<Inventory> list) throws Exception
     {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element html = document.createElement("html");

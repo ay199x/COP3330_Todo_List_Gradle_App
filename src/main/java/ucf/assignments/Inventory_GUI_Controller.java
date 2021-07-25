@@ -21,14 +21,15 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.Timer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javafx.scene.control.Alert.AlertType;
+
+import javax.swing.*;
 
 import static ucf.assignments.LoadSave.Type.*;
 
@@ -49,11 +50,9 @@ public class Inventory_GUI_Controller
     @FXML
     private Button updateButton;
     @FXML
-    private Button cancelUpdateButton;
-    @FXML
     private Button deleteButton;
     @FXML
-    private MenuItem openItem;
+    private Button cancelButton;
     @FXML
     private MenuItem TSVItem;
     @FXML
@@ -70,24 +69,22 @@ public class Inventory_GUI_Controller
     private TableColumn<Inventory, String> item_serial;
     @FXML
     private TableColumn<Inventory, String> item_name;
-    @FXML
-    private MenuButton sortButton;
 
 
     public ObservableList<Inventory> items = FXCollections.observableArrayList();
 
     public int index;
     public boolean isopened = false;
+    public String fname;
+    public String absolutePath;
 
     FilteredList<Inventory> filteredData = new FilteredList<>(items, e -> true);
 
     @FXML
     public void initialize()
     {
-        //String path = System.getProperty("user.dir");
-        //fc.setInitialDirectory(new File(path));
-        toggleButtons(false);
 
+        toggleButtons(false);
         item_value.setCellValueFactory(new PropertyValueFactory<>("dollars"));
 
         item_serial.setCellValueFactory(new PropertyValueFactory<>("serial_number"));
@@ -148,7 +145,7 @@ public class Inventory_GUI_Controller
     public void saveClicked(ActionEvent actionEvent)
     {
         Object src = actionEvent.getSource();
-
+        errorLabel.setText("");
         if (src == TSVItem)
         {
             Save_as(TSV);
@@ -180,7 +177,12 @@ public class Inventory_GUI_Controller
         {
             try
             {
+                isopened = true;
+                fname = selectedFile.getName();
+                absolutePath = selectedFile.getAbsolutePath();
+
                 LoadSave.Save_As(selectedFile, type, data.getList());
+
             }
             catch (Exception e)
             {
@@ -190,17 +192,75 @@ public class Inventory_GUI_Controller
     }
 
     @FXML
+    public void saveOpenedClicked(ActionEvent actionEvent) throws IOException
+    {
+        errorLabel.setText("");
+
+        if(isopened)
+        {
+            LoadSave ld = new LoadSave();
+            new FileOutputStream(absolutePath).close();
+
+            if(fname.endsWith(".txt"))
+            {
+                try(FileWriter writer = new FileWriter(absolutePath))
+                {
+                    ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
+                    AppData data = new AppData(list);
+                    ld.Save_As_TSV(writer,data.getList());
+                }
+            }
+
+            else if(fname.endsWith(".html"))
+            {
+                try(FileWriter writer = new FileWriter(absolutePath))
+                {
+                    ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
+                    AppData data = new AppData(list);
+                    ld.Save_As_HTML(writer,data.getList());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            else
+            {
+                try(FileWriter writer = new FileWriter(absolutePath))
+                {
+                    ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
+                    AppData data = new AppData(list);
+                    ld.Save_As_JSON(writer,data.getList());
+                }
+
+            }
+        }
+
+        else
+        {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText("Please Save The File As A TSV/HTML/JSON File First");
+            alert.show();
+        }
+    }
+
+    @FXML
     public void openClicked(ActionEvent actionEvent)
     {
+        errorLabel.setText("");
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().addAll(getExtensionFilter(TSV), getExtensionFilter(HTML), getExtensionFilter(JSON));
         File selectedFile = fc.showOpenDialog(new Stage());
 
         if(selectedFile != null)
         {
-            isopened = true;
+
             try
             {
+                isopened = true;
+                fname = selectedFile.getName();
+                absolutePath = selectedFile.getAbsolutePath();
+
                 ArrayList<Inventory> list = LoadSave.Open(selectedFile);
 
                 AppData data = new AppData(list);
@@ -220,16 +280,14 @@ public class Inventory_GUI_Controller
     }
 
     @FXML
-    void addNewItem(ActionEvent event)
-    {
+    void addNewItem(ActionEvent event) throws InterruptedException {
         if(addItemValidate())
         {
             addItemCommit();
         }
     }
 
-    private boolean addItemValidate()
-    {
+    private boolean addItemValidate() throws InterruptedException {
 
         if( nameText.getText().equals(""))
         {
@@ -250,25 +308,25 @@ public class Inventory_GUI_Controller
 
         else if(isDouble(moneyText.getText()) == false)
         {
-            printError("Please enter the monetary value in the correct format");
+            printError("Invalid Monetary Value");
             return false;
         }
 
         else if(isSerial(serialText.getText()) == false)
         {
-            printError("Please enter the serial number in the correct format");
+            printError("Invalid Serial Number");
             return false;
         }
 
         else if(nameText.getText().length() < 2)
         {
-            printError("Inventory item name less than 2 characters");
+            printError("Please Enter More than 1 Character");
             return false;
         }
 
         else if(nameText.getText().length() > 256)
         {
-            printError("Inventory item name cannot exceed 256 characters");
+            printError("Please Enter Less Than 257 Characters");
             return false;
         }
 
@@ -383,24 +441,34 @@ public class Inventory_GUI_Controller
     @FXML
     void deleteItem(ActionEvent event)
     {
-        items.remove(tableview.getSelectionModel().getSelectedItem());
-        tableview.refresh();
-        tableview.getSelectionModel().clearSelection();
+        if(tableview.getSelectionModel().getSelectedItem() != null) {
+            items.remove(tableview.getSelectionModel().getSelectedItem());
+            tableview.refresh();
+            tableview.getSelectionModel().clearSelection();
 
-        nameText.setText("");
-        moneyText.setText("");
-        serialText.setText("");
-        errorLabel.setText("");
+            nameText.setText("");
+            moneyText.setText("");
+            serialText.setText("");
+            errorLabel.setText("");
 
-        addItemButton.setDisable(false);
-        updateButton.setDisable(false);
-        cancelUpdateButton.setDisable(false);
-        deleteButton.setDisable(false);
+            addItemButton.setDisable(false);
+            updateButton.setDisable(false);
+            cancelButton.setDisable(false);
+            deleteButton.setDisable(false);
+        }
+
+        else
+        {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText("Please Select An Item To Delete");
+            alert.show();
+        }
     }
 
 
     @FXML
-    public void updateItemClicked(ActionEvent actionEvent) throws IOException, InterruptedException  //when update button is clicked
+    public void updateItemClicked(ActionEvent actionEvent) throws IOException
     {
 
         if(tableview.getSelectionModel().getSelectedItem() != null) {
@@ -423,46 +491,37 @@ public class Inventory_GUI_Controller
 
         else
         {
-            printError("Please Select An Inventory Item To Update");
-            //Thread.sleep(2000);
-            //errorLabel.setText("");
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText("Please Select An Item To Update");
+            alert.show();
 
         }
 
 
-
-        /*
-        new FileOutputStream(fname).close();
-        saveItemData(fname);
-
-         */
-
     }
+
+
 
     @FXML
-    public void cancelUpdateClicked(ActionEvent actionEvent) throws IOException, InterruptedException  //when update button is clicked
+    public void cancelClicked(ActionEvent actionEvent)
     {
-        if(tableview.getSelectionModel().getSelectedItem() != null) {
-            tableview.getSelectionModel().clearSelection();
-            nameText.setText("");
-            moneyText.setText("");
-            serialText.setText("");
-            errorLabel.setText("");
+        tableview.getSelectionModel().clearSelection();
+        nameText.setText("");
+        moneyText.setText("");
+        serialText.setText("");
+        errorLabel.setText("");
 
 
-            toggleButtons(items.isEmpty());
-        }
-
-        else
-        {
-            printError("Please Don't Click On Cancel Without Selecting An Item");
-            //Thread.sleep(2000);
-            //errorLabel.setText("");
-        }
+        addItemButton.setDisable(false);
+        updateButton.setDisable(false);
+        cancelButton.setDisable(false);
+        deleteButton.setDisable(false);
 
     }
 
 
+    
         @FXML
     public void sortName(ActionEvent actionEvent)
     {
@@ -542,10 +601,12 @@ public class Inventory_GUI_Controller
         addItemButton.setDisable(listsEmpty);
     }
 
-    private void printError(String text)
+    private void printError(String text) throws InterruptedException
     {
+
         errorLabel.setText(text);
         errorLabel.setTextFill(Color.RED);
+
     }
 
     private void showAlert(String title, String message, Alert.AlertType type)
@@ -573,6 +634,39 @@ public class Inventory_GUI_Controller
 
     }
 
+    @FXML
+    public void closeItemClicked(ActionEvent actionEvent)
+    {
+        if(isopened) {
+            items.clear();
+            tableview.getSelectionModel().clearSelection();
+            tableview.refresh();
+            tableview.setItems(items);
+            isopened = false;
+            fname = "";
+            absolutePath = "";
 
+            nameText.setText("");
+            moneyText.setText("");
+            serialText.setText("");
+            errorLabel.setText("");
+
+            addItemButton.setDisable(false);
+            updateButton.setDisable(false);
+            cancelButton.setDisable(false);
+            deleteButton.setDisable(false);
+        }
+
+        else{
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Error");
+            alert.setContentText("Please Open A File To Close It");
+            alert.show();
+
+        }
+
+
+
+    }
 }
 
