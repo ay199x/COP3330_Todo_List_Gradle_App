@@ -1,5 +1,8 @@
 package ucf.assignments;
-
+/*
+ *  UCF COP3330 Summer 2021 Assignment 5 Solution
+ *  Copyright 2021 Ayush Pindoria
+ */
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -93,9 +96,6 @@ public class Inventory_GUI_Controller
         item_serial.setCellValueFactory(new PropertyValueFactory<>("serial_number"));
 
         item_name.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        //FilteredList<Inventory> filteredData = new FilteredList<>(items, b -> true);
-
 
 
         tableview.setOnMouseClicked((MouseEvent event) -> {
@@ -194,6 +194,7 @@ public class Inventory_GUI_Controller
                     ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
                     AppData data = new AppData(list);
                     ld.Save_As_TSV(writer,data.getList());
+                    printError("File Saved!");
                 }
             }
 
@@ -204,6 +205,7 @@ public class Inventory_GUI_Controller
                     ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
                     AppData data = new AppData(list);
                     ld.Save_As_HTML(writer,data.getList());
+                    printError("File Saved!");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -216,6 +218,7 @@ public class Inventory_GUI_Controller
                     ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
                     AppData data = new AppData(list);
                     ld.Save_As_JSON(writer,data.getList());
+                    printError("File Saved!");
                 }
 
             }
@@ -338,7 +341,9 @@ public class Inventory_GUI_Controller
     private void addItemCommit()
     {
         double value = Double.parseDouble(moneyText.getText());
-        items.add(new Inventory(value, serialText.getText(), nameText.getText()));
+        double roundedvalue = Math.round(value * 100.0) / 100.0;
+
+        items.add(new Inventory(roundedvalue, serialText.getText(), nameText.getText()));
 
         tableview.setItems(items);
         nameText.setText("");
@@ -432,7 +437,9 @@ public class Inventory_GUI_Controller
         sortedData.comparatorProperty().bind(tableview.comparatorProperty());
 
         tableview.setItems(sortedData);
+
     }
+
 
     @FXML
     void deleteItem(ActionEvent event)
@@ -544,7 +551,8 @@ public class Inventory_GUI_Controller
 
                 items.remove(index);
                 double value = Double.parseDouble(moneyText.getText());
-                items.add(index, new Inventory(value, serialText.getText(), nameText.getText()));
+                double roundedvalue = Math.round(value * 100.0) / 100.0;
+                items.add(index, new Inventory(roundedvalue, serialText.getText(), nameText.getText()));
 
                 tableview.setItems(items);
                 tableview.getSelectionModel().clearSelection();
