@@ -23,7 +23,7 @@ public class Inventory implements Serializable
 
     public Inventory()
     {
-
+        /* constructor that does nothing*/
     }
     public void setValue(double value) {
         this.value = value;

@@ -1,11 +1,126 @@
 @startuml
 'https://plantuml.com/sequence-diagram
 
-autonumber
+class InventoryTracker
+{
+-mainWindow: Stage
++getMainWindow(): Stage
++main()
++start()
+}
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+class AppData
+{
+-list: ArrayList<Inventory>
++AppData(): Constructor
++getList():  ArrayList<Inventory>
+}
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+class Inventory
+{
+-value: double
+-serial_number: String
+-name: String
+-dollars: String
++Inventory(): Constructor
++Inventory(double value, String serial_number, String name): Constructor
++getValue(): double
++getSerial_number(): String
++getDollars(): String
++getName(): String
++setValue(): void
++setSerial_number(): void
++setName(): void
+}
+
+enum Type
+{
+TSV
+HTML
+JSON
+-filename: String
+-extension: String
+Type(): constructor
++getFilename(): String
++getExtension(): String
+}
+
+class LoadSave
+{
++Type: enum
++Open(): ArrayList<Inventory>
+-openFromTSV(): ArrayList<Inventory>
+-openFromHTML(): ArrayList<Inventory>
+-openFromJSON(): ArrayList<Inventory>
++Save_As(): void
++Save_As_TSV(): void
++Save_As_HTML(): void
++Save_As_JSON(): void
+
+}
+
+class Inventory_GUI_Controller
+{
+-mainPane: SplitPane
+-nameText: TextField
+-serialText: TextField
+-moneyText: TextField
+-searchField: TextField
+-addItemButton: Button
+-deleteButton: Button
+-updateButton: Button
+-cancelButton: Button
+-errorLabel: Label
+-TSVItem: MenuItem
+-HTMItem: MenuItem
+-JSONItem: MenuItem
+-tableview: TableView<Inventory>
+-item_value: TableColumn<Inventory, String>
+-item_serial: TableColumn<Inventory, String>
+-item_name: TableColumn<Inventory, String>
+-name: String
+-serial: String
+-money: double
++items: ObservableList<Inventory>
++absolutePath: String
++fname: String
++index: int
++isopened: boolean
+filteredData: FilteredList<Inventory>
++initialize(): void
++saveClicked(): void (ActionEvent)
+-Save_as(): void
++saveOpenedClicked(): void (ActionEvent)
++openClicked(): void (ActionEvent)
++addNewItem: void (ActionEvent)
+-addItemValidate(): boolean
+-addItemCommit(): void
+-isDuplicate(): boolean
+-isSerial(): boolean
+-isDouble(): boolean
+-isStringUpperCase(): boolean
++search(): void (KeyEvent)
++deleteItem(): void (ActionEvent)
+-editItemValidate(): boolean
+-isDuplicate_New(): boolean
++updateItemClicked(): void (ActionEvent)
++cancelClicked(): void (ActionEvent)
++sortName(): void (ActionEvent)
++sortSerialNumber(): void (ActionEvent)
++sorValue(): void (ActionEvent)
+-toggleButtons(): void
+-printError(): void
+-showAlert(): void
+-showAlert(): FileChooser.ExtensionFilter
++closeItemClicked(): void (ActionEvent)
+}
+
+
+javaFX.Application <-- InventoryTracker
+InventoryTracker - Inventory_GUI_Controller
+AppData *-- Inventory
+Inventory_GUI_Controller *-- Inventory
+Inventory_GUI_Controller *-- AppData
+Inventory_GUI_Controller *-- LoadSave
+LoadSave *-- Type
 @enduml

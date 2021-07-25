@@ -81,8 +81,8 @@ public class Inventory_GUI_Controller
     public String fname;
     public String absolutePath;
 
-    String name, serial;
-    double money;
+    private String name, serial;
+    private double money;
 
     FilteredList<Inventory> filteredData = new FilteredList<>(items, e -> true);
 
@@ -600,7 +600,7 @@ public class Inventory_GUI_Controller
 
 
     
-        @FXML
+    @FXML
     public void sortName(ActionEvent actionEvent)
     {
         Collections.sort(items, new Comparator<Inventory>()
