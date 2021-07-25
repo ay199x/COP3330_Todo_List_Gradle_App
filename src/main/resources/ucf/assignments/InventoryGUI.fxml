@@ -20,7 +20,7 @@
             <children>
                 <TextField fx:id="nameText" focusTraversable="false" layoutX="106.0" layoutY="36.0" prefHeight="25.0" prefWidth="260.0" promptText="Write the name of your inventory item here ..." />
                 <Button id="addTaskButton" fx:id="addItemButton" focusTraversable="false" layoutX="447.0" layoutY="36.0" mnemonicParsing="false" onAction="#addNewItem" prefHeight="25.0" prefWidth="138.0" text="Add Inventory Item" />
-                <Label fx:id="errorLabel" layoutX="106.0" layoutY="134.0" prefHeight="17.0" prefWidth="260.0" />
+                <Label fx:id="errorLabel" layoutX="106.0" layoutY="134.0" prefHeight="17.0" prefWidth="336.0" />
                 <Button fx:id="deleteButton" focusTraversable="false" layoutX="640.0" layoutY="84.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="25.0" prefWidth="138.0" text="Delete" />
                 <Button fx:id="updateButton" layoutX="640.0" layoutY="36.0" mnemonicParsing="false" onAction="#updateItemClicked" prefHeight="25.0" prefWidth="138.0" text="Update Item" />
             <MenuButton fx:id="sortButton" layoutX="698.0" layoutY="166.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="69.0" text="Sort">

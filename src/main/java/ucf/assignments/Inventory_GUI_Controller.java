@@ -78,6 +78,9 @@ public class Inventory_GUI_Controller
     public String fname;
     public String absolutePath;
 
+    String name, serial;
+    double money;
+
     FilteredList<Inventory> filteredData = new FilteredList<>(items, e -> true);
 
     @FXML
@@ -118,23 +121,6 @@ public class Inventory_GUI_Controller
 
         });
 
-
-        /*
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            @Override
-            public void run()
-            {
-                if(isopened == true) {
-                    try {
-                        saveItemData(fname);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-     */
 
         tableview.getSelectionModel().clearSelection();
 
@@ -237,10 +223,19 @@ public class Inventory_GUI_Controller
 
         else
         {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setHeaderText("Error");
-            alert.setContentText("Please Save The File As A TSV/HTML/JSON File First");
-            alert.show();
+            if(items.isEmpty()) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setHeaderText("Error");
+                alert.setContentText("Please Enter Some Data And Then Save It As A TSV/HTML/JSON File First");
+                alert.show();
+            }
+
+            else{
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setHeaderText("Error");
+                alert.setContentText("Please Save The Data As A TSV/HTML/JSON File First");
+                alert.show();
+            }
         }
     }
 
@@ -280,14 +275,15 @@ public class Inventory_GUI_Controller
     }
 
     @FXML
-    void addNewItem(ActionEvent event) throws InterruptedException {
+    void addNewItem(ActionEvent event)
+    {
         if(addItemValidate())
         {
             addItemCommit();
         }
     }
 
-    private boolean addItemValidate() throws InterruptedException {
+    private boolean addItemValidate() {
 
         if( nameText.getText().equals(""))
         {
@@ -417,11 +413,11 @@ public class Inventory_GUI_Controller
                     return true;
                 }
 
-                else if (inventory.getName().toLowerCase().contains(newValue))
+                else if (inventory.getName().toLowerCase().contains(newValue) || inventory.getName().toUpperCase().contains(newValue))
                 {
                     return true; // Filter matches name.
                 }
-                else if (inventory.getSerial_number().toLowerCase().contains(newValue))
+                else if (inventory.getSerial_number().toLowerCase().contains(newValue) || inventory.getSerial_number().toUpperCase().contains(newValue))
                 {
                     return true; // Filter matches serial number.
                 }
@@ -466,27 +462,102 @@ public class Inventory_GUI_Controller
         }
     }
 
+    private boolean editItemValidate()
+    {
+
+        if( nameText.getText().equals(""))
+        {
+            printError("Cannot update an empty inventory item");
+            return false;
+        }
+        else if( moneyText.getText().equals(""))
+        {
+            printError("Cannot update an inventory item with no monetary value");
+            return false;
+        }
+        else if(serialText.getText().equals(""))
+        {
+            printError("Cannot update an inventory item with no serial number");
+            return false;
+        }
+
+
+        else if(isDouble(moneyText.getText()) == false)
+        {
+            printError("Invalid Monetary Value");
+            return false;
+        }
+
+        else if(isSerial(serialText.getText()) == false)
+        {
+            printError("Invalid Serial Number");
+            return false;
+        }
+
+        else if(nameText.getText().length() < 2)
+        {
+            printError("Please Enter More than 1 Character");
+            return false;
+        }
+
+        else if(nameText.getText().length() > 256)
+        {
+            printError("Please Enter Less Than 257 Characters");
+            return false;
+        }
+
+        if(isDuplicate_New())
+        {
+            printError("Cannot create an inventory item with duplicate serial number");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isDuplicate_New()
+    {
+        for(int i = 0; i < index; i++)
+        {
+            if (serialText.getText().equals(items.get(i).getSerial_number()))
+                return true;
+        }
+
+        for(int i = index + 1; i < items.size(); i++)
+        {
+            if (serialText.getText().equals(items.get(i).getSerial_number()))
+                return true;
+        }
+
+        return false;
+    }
 
     @FXML
     public void updateItemClicked(ActionEvent actionEvent) throws IOException
     {
 
-        if(tableview.getSelectionModel().getSelectedItem() != null) {
+        if(tableview.getSelectionModel().getSelectedItem() != null)
+        {
 
-            items.remove(index);
+            if(editItemValidate())
+            {
 
-            double value = Double.parseDouble(moneyText.getText());
-            items.add(index, new Inventory(value, serialText.getText(), nameText.getText()));
+                items.remove(index);
+                double value = Double.parseDouble(moneyText.getText());
+                items.add(index, new Inventory(value, serialText.getText(), nameText.getText()));
 
-            tableview.setItems(items);
-            tableview.getSelectionModel().clearSelection();
-            nameText.setText("");
-            moneyText.setText("");
-            serialText.setText("");
-            errorLabel.setText("");
+                tableview.setItems(items);
+                tableview.getSelectionModel().clearSelection();
+                nameText.setText("");
+                moneyText.setText("");
+                serialText.setText("");
+                errorLabel.setText("");
 
 
-            toggleButtons(items.isEmpty());
+                toggleButtons(items.isEmpty());
+            }
+
+
         }
 
         else
@@ -495,7 +566,6 @@ public class Inventory_GUI_Controller
             alert.setHeaderText("Error");
             alert.setContentText("Please Select An Item To Update");
             alert.show();
-
         }
 
 
@@ -601,7 +671,7 @@ public class Inventory_GUI_Controller
         addItemButton.setDisable(listsEmpty);
     }
 
-    private void printError(String text) throws InterruptedException
+    private void printError(String text)
     {
 
         errorLabel.setText(text);
