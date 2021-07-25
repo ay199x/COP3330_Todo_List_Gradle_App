@@ -112,9 +112,9 @@ public class LoadSave
         {
             NodeList rows = table.getChildNodes();
             int rCount = 0;
-            for (int r = 0; r < rows.getLength(); r++)
+            for (int i = 0; i < rows.getLength(); i++)
             {
-                Node row = rows.item(r);
+                Node row = rows.item(i);
                 if (row.getNodeName().equals("tr"))
                 {
                     rCount++;
@@ -127,26 +127,28 @@ public class LoadSave
                     int cCount = 0;
                     Inventory item = new Inventory();
 
-                    for (int c = 0; c < cols.getLength(); c++)
+                    for (int j = 0; j < cols.getLength(); j++)
                     {
-                        Node col = cols.item(c);
+                        Node col = cols.item(j);
                         if (col.getNodeName().equals("td"))
                         {
                             switch (cCount)
                             {
                                 case 0:
                                 {
-                                    item.setSerial_number(col.getTextContent());
+                                    item.setValue(Double.parseDouble(col.getTextContent()));
                                 }
                                 break;
+
                                 case 1:
                                 {
                                     item.setName(col.getTextContent());
                                 }
                                 break;
+
                                 case 2:
                                 {
-                                    item.setValue(Float.parseFloat(col.getTextContent()));
+                                    item.setSerial_number(col.getTextContent());
                                 }
                             }
                             cCount++;
@@ -211,20 +213,20 @@ public class LoadSave
 
         tr = document.createElement("tr");
 
-
+        value = document.createElement("td");
         serialNo = document.createElement("td");
         name = document.createElement("td");
-        value = document.createElement("td");
 
 
+        value.setTextContent("Value");
         serialNo.setTextContent("Serial Number");
         name.setTextContent("Name");
-        value.setTextContent("Value");
 
 
+        tr.appendChild(value);
         tr.appendChild(serialNo);
         tr.appendChild(name);
-        tr.appendChild(value);
+
 
         table.appendChild(tr);
 
@@ -232,18 +234,19 @@ public class LoadSave
         {
             tr = document.createElement("tr");
 
+            value = document.createElement("td");
             serialNo = document.createElement("td");
             name = document.createElement("td");
-            value = document.createElement("td");
 
 
+            value.setTextContent(String.format("%.2f",list.get(i).getValue()));
             serialNo.setTextContent(list.get(i).getSerial_number());
             name.setTextContent(list.get(i).getName());
-            value.setTextContent(String.format("%.2f",list.get(i).getValue()));
 
+            tr.appendChild(value);
             tr.appendChild(serialNo);
             tr.appendChild(name);
-            tr.appendChild(value);
+
 
             table.appendChild(tr);
         }
