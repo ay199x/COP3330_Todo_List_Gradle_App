@@ -25,6 +25,10 @@ public class Inventory implements Serializable
         this.dollars = "$" + String.valueOf(value);
     }
 
+    public Inventory()
+    {
+
+    }
     public void setValue(double value) {
         this.value = value;
     }

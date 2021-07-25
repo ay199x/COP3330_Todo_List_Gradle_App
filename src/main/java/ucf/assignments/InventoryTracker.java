@@ -10,6 +10,13 @@ import java.io.IOException;
 
 public class InventoryTracker extends Application {
 
+    private static Stage mainWindow;
+
+    public static Stage getMainWindow()
+    {
+        return mainWindow;
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -17,6 +24,7 @@ public class InventoryTracker extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException
     {
+        mainWindow = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("InventoryGUI.fxml"));
         Scene scene = new Scene(root);
 

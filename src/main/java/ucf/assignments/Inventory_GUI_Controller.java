@@ -23,9 +23,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static ucf.assignments.LoadSave.Type.*;
 
 public class Inventory_GUI_Controller
 {
@@ -48,6 +51,14 @@ public class Inventory_GUI_Controller
     @FXML
     private Button deleteButton;
     @FXML
+    private MenuItem openItem;
+    @FXML
+    private MenuItem TSVItem;
+    @FXML
+    private MenuItem HTMLItem;
+    @FXML
+    private MenuItem JSONItem;
+    @FXML
     private Label errorLabel;
     @FXML
     private TableView<Inventory> tableview;
@@ -59,14 +70,11 @@ public class Inventory_GUI_Controller
     private TableColumn<Inventory, String> item_name;
     @FXML
     private MenuButton sortButton;
-    @FXML
-    private MenuButton openButton;
-    @FXML
-    private MenuButton saveButton;
+
 
     public ObservableList<Inventory> items = FXCollections.observableArrayList();
 
-    public FileChooser fc = new FileChooser(); //for saving and opening files
+    //public FileChooser fc = new FileChooser(); //for saving and opening files
     public String fname = "";
     public int index;
     public boolean isopened = false;
@@ -75,8 +83,8 @@ public class Inventory_GUI_Controller
     @FXML
     public void initialize()
     {
-        String path = System.getProperty("user.dir");
-        fc.setInitialDirectory(new File(path));
+        //String path = System.getProperty("user.dir");
+        //fc.setInitialDirectory(new File(path));
         toggleButtons(false);
 
         item_value.setCellValueFactory(new PropertyValueFactory<>("dollars"));
@@ -159,6 +167,79 @@ public class Inventory_GUI_Controller
 
         tableview.getSelectionModel().clearSelection();
 
+
+    }
+
+    @FXML
+    public void saveClicked(ActionEvent actionEvent)
+    {
+        Object src = actionEvent.getSource();
+
+        if (src == TSVItem)
+        {
+            Save_as(TSV);
+        }
+
+        else if (src == HTMLItem)
+        {
+            Save_as(HTML);
+        }
+
+        else if (src == JSONItem)
+        {
+            Save_as(JSON);
+        }
+    }
+
+    private void Save_as(LoadSave.Type type)
+    {
+        FileChooser chooser = new FileChooser();
+
+        FileChooser.ExtensionFilter filter = getExtensionFilter(type);
+        chooser.getExtensionFilters().add(filter);
+        File filename = chooser.showSaveDialog(InventoryTracker.getMainWindow());
+
+        ArrayList<Inventory> list = (ArrayList<Inventory>) items.stream().collect(Collectors.toList());
+        AppData data = new AppData(list);
+
+        if (filename == null)
+            return;
+
+        try
+        {
+            LoadSave.Save_As(filename, type, data.getList());
+        }
+        catch (Exception e)
+        {
+            showAlert("Save Error", e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void openClicked(ActionEvent actionEvent)
+    {
+        FileChooser chooser = new FileChooser();
+        chooser.getExtensionFilters().addAll(getExtensionFilter(TSV), getExtensionFilter(HTML), getExtensionFilter(JSON));
+        File filename = chooser.showOpenDialog(InventoryTracker.getMainWindow());
+
+        if (filename == null)
+            return;
+
+        try
+        {
+            ArrayList<Inventory> list = LoadSave.Open(filename);
+
+            AppData data = new AppData(list);
+            items.setAll(data.getList());
+            tableview.setItems(items);
+
+        }
+
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            showAlert("File Open Error", e.getMessage(), Alert.AlertType.ERROR);
+        }
 
     }
 
@@ -458,8 +539,30 @@ public class Inventory_GUI_Controller
         errorLabel.setTextFill(Color.RED);
     }
 
+    private void showAlert(String title, String message, Alert.AlertType type)
+    {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.show();
+    }
 
+    private FileChooser.ExtensionFilter getExtensionFilter(LoadSave.Type type)
+    {
+        if (type == TSV)
+        {
+            return new FileChooser.ExtensionFilter(type.getFilename(),type.getExtension());
+        }
+        else if (type == HTML)
+        {
+            return new FileChooser.ExtensionFilter(type.getFilename(),type.getExtension());
+        }
+        else
+        {
+            return new FileChooser.ExtensionFilter(type.getFilename(),type.getExtension());
+        }
 
+    }
 
 }
 
