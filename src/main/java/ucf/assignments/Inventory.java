@@ -12,7 +12,7 @@ public class Inventory implements Serializable
     private String name;
     private String dollars = null;
 
-
+//
     public Inventory(double value, String serial_number, String name) {
         this.value = value;
         this.serial_number = serial_number;

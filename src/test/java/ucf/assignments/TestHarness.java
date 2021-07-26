@@ -60,7 +60,7 @@ public class TestHarness
             errorLabel = "Invalid Serial Number";
             return false;
         }
-
+//
         else if(task.getName().length() < 2)
         {
             errorLabel = "Please Enter More than 1 Character";
