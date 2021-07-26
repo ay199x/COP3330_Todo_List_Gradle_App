@@ -6,9 +6,10 @@ package ucf.assignments;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-//
-import java.time.LocalDate;
-import java.util.ArrayList;
+/*
+ *  UCF COP3330 Summer 2021 Assignment 5 Solution
+ *  Copyright 2021 Ayush Pindoria
+ */
 import java.util.Random;
 
 import org.junit.jupiter.api.AfterAll;
