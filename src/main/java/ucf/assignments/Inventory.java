@@ -10,7 +10,7 @@ public class Inventory implements Serializable
     private double value;
     private String serial_number;
     private String name;
-    private String dollars;
+    private String dollars = null;
 
 
     public Inventory(double value, String serial_number, String name) {
